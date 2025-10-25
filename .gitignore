@@ -6,6 +6,11 @@ node_modules/
 dist/
 */dist/
 
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
 # Environment variables
 .env
 .env.local
