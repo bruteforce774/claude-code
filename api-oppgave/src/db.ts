@@ -1,5 +1,15 @@
 import Database from 'better-sqlite3';
-import type { TodoItem } from '../public/src/types';
+import type { TodoItem } from './types.js';
+
+// Type for database row (SQLite returns different types)
+type TodoRow = {
+    id: number;
+    text: string;
+    completed: number;  // SQLite stores boolean as 0/1
+    urgent: number;
+    important: number;
+    created_at: string;
+};
 
 // ============================================
 // DATABASE INITIALIZATION
@@ -65,7 +75,7 @@ const statements = {
  * Get all todos from database
  */
 export function getAllTodos(): TodoItem[] {
-    const rows = statements.getAll.all();
+    const rows = statements.getAll.all() as TodoRow[];
     return rows.map(row => ({
         id: row.id,
         text: row.text,
@@ -79,7 +89,7 @@ export function getAllTodos(): TodoItem[] {
  * Get a single todo by ID
  */
 export function getTodoById(id: number): TodoItem | undefined {
-    const row = statements.getById.get(id);
+    const row = statements.getById.get(id) as TodoRow | undefined;
     if (!row) return undefined;
 
     return {
