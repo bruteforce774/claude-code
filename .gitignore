@@ -8,6 +8,12 @@ dist/
 dist-server/
 */dist-server/
 
+# TypeScript compiled outputs in source directories
+public/src/**/*.js
+public/src/**/*.js.map
+src/**/*.js
+src/**/*.js.map
+
 # Database files
 *.db
 *.db-shm
