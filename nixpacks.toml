@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["cd api-oppgave && npm ci"]
+
+[phases.build]
+cmds = ["cd api-oppgave && npm run build:all"]
+
+[start]
+cmd = "cd api-oppgave && npm start"
