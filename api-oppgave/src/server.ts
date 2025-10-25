@@ -80,13 +80,6 @@ app.delete('/api/todos/:id', (req: Request, res: Response) => {
 });
 
 // ============================================
-// SERVE FRONTEND (catch-all for client-side routing)
-// ============================================
-app.get('*', (req: Request, res: Response) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-});
-
-// ============================================
 // START SERVER
 // ============================================
 const PORT = process.env.PORT || 3000;
