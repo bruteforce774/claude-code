@@ -1,0 +1,13 @@
+{
+  "name": "claude-code-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install": "cd api-oppgave && npm install",
+    "build": "cd api-oppgave && npm run build:all",
+    "start": "cd api-oppgave && npm start"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
