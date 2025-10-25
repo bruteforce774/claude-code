@@ -1,13 +1,20 @@
 import type { Request, Response } from 'express';
 import express from 'express';
 import path from 'path';
-import * as db from './db';
+import { fileURLToPath } from 'url';
+import * as db from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json()); // Parse JSON request bodies
 
-// Serve static files from the root directory (for Vite dev server compatibility)
-app.use(express.static(path.join(process.cwd())));
+// Serve static files
+// In production: serve from 'dist' folder
+// In development: this is handled by Vite dev server
+const distPath = path.join(__dirname, '..', 'dist');
+app.use(express.static(distPath));
 
 // ============================================
 // CRUD ENDPOINTS
@@ -73,8 +80,16 @@ app.delete('/api/todos/:id', (req: Request, res: Response) => {
 });
 
 // ============================================
+// SERVE FRONTEND (catch-all for client-side routing)
+// ============================================
+app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// ============================================
 // START SERVER
 // ============================================
-app.listen(3000, () => {
-    console.log('🚀 Server running at http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

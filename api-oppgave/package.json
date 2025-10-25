@@ -5,8 +5,10 @@
   "scripts": {
     "dev:backend": "tsx src/server.ts",
     "dev:frontend": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "start": "node dist-server/server.js",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:all": "npm run build && npm run build:server"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
