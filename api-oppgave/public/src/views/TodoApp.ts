@@ -1,10 +1,27 @@
 import { BaseComponent } from '../components/BaseComponent';
 import type { AppState, TodoItem } from '../types';
+import * as api from '../api';
 
 export class TodoApp extends BaseComponent {
     private state: AppState = {
         todos: []
     };
+
+    // Load todos from API when component mounts
+    async connectedCallback() {
+        await this.loadTodos();
+        super.connectedCallback(); // Call render
+    }
+
+    async loadTodos() {
+        try {
+            this.state.todos = await api.getTodos();
+            this.render();
+        } catch (error) {
+            console.error('Failed to load todos:', error);
+            alert('Failed to load todos. Please refresh the page.');
+        }
+    }
 
     render() {
         this.shadowRoot!.innerHTML = /*HTML*/`
@@ -56,37 +73,44 @@ export class TodoApp extends BaseComponent {
     }
 
     // ============================================
-    // EVENT HANDLERS (will connect to API later)
+    // EVENT HANDLERS - Connected to API
     // ============================================
 
     async handleAddTodo(e: Event) {
         const customEvent = e as CustomEvent;
         const { text, urgent, important } = customEvent.detail;
 
-        // TODO: Call API to create todo
-        // For now, just add to local state
-        const newTodo: TodoItem = {
-            id: Date.now(), // Temporary ID (API will provide real one)
-            text,
-            completed: false,
-            urgent,
-            important
-        };
-
-        this.state.todos.push(newTodo);
-        this.render();
+        try {
+            // Call API to create todo - server provides the ID
+            const newTodo = await api.createTodo({ text, urgent, important });
+            this.state.todos.push(newTodo);
+            this.render();
+        } catch (error) {
+            console.error('Failed to add todo:', error);
+            alert('Failed to add todo. Please try again.');
+        }
     }
 
     async handleToggleComplete(e: Event) {
         const customEvent = e as CustomEvent;
         const { id } = customEvent.detail;
 
-        // TODO: Call API to update todo
-        // For now, update local state
         const todo = this.state.todos.find(t => t.id === id);
-        if (todo) {
-            todo.completed = !todo.completed;
+        if (!todo) return;
+
+        try {
+            // Call API to update the completed status
+            const updatedTodo = await api.updateTodo(id, {
+                completed: !todo.completed
+            });
+
+            // Update local state with server response
+            const index = this.state.todos.findIndex(t => t.id === id);
+            this.state.todos[index] = updatedTodo;
             this.render();
+        } catch (error) {
+            console.error('Failed to toggle todo:', error);
+            alert('Failed to update todo. Please try again.');
         }
     }
 
@@ -104,12 +128,22 @@ export class TodoApp extends BaseComponent {
         const newUrgent = confirm('Is this task urgent?');
         const newImportant = confirm('Is this task important?');
 
-        // TODO: Call API to update todo
-        // For now, update local state
-        todo.text = newText.trim() || todo.text;
-        todo.urgent = newUrgent;
-        todo.important = newImportant;
-        this.render();
+        try {
+            // Call API to update todo
+            const updatedTodo = await api.updateTodo(id, {
+                text: newText.trim() || todo.text,
+                urgent: newUrgent,
+                important: newImportant
+            });
+
+            // Update local state with server response
+            const index = this.state.todos.findIndex(t => t.id === id);
+            this.state.todos[index] = updatedTodo;
+            this.render();
+        } catch (error) {
+            console.error('Failed to edit todo:', error);
+            alert('Failed to update todo. Please try again.');
+        }
     }
 
     async handleDeleteTodo(e: Event) {
@@ -120,9 +154,16 @@ export class TodoApp extends BaseComponent {
             return;
         }
 
-        // TODO: Call API to delete todo
-        // For now, remove from local state
-        this.state.todos = this.state.todos.filter(t => t.id !== id);
-        this.render();
+        try {
+            // Call API to delete todo
+            await api.deleteTodo(id);
+
+            // Remove from local state
+            this.state.todos = this.state.todos.filter(t => t.id !== id);
+            this.render();
+        } catch (error) {
+            console.error('Failed to delete todo:', error);
+            alert('Failed to delete todo. Please try again.');
+        }
     }
 }
